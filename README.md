@@ -9,6 +9,7 @@ This directory can be initiated with [Vagrant](https://www.vagrantup.com/)
 by executing the command `vagrant up` within the `vagrant/` directory.  The
 test cases can be run by executing the following commands:
 
+`vagrant up` sets up database with pg_config.sh script (see Vagrantfile and docs)
 `vagrant ssh`
 `cd /vagrant/tournament`
 `python tournament_test.py`
