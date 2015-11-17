@@ -9,6 +9,9 @@ This directory can be initiated with [Vagrant](https://www.vagrantup.com/)
 by executing the command `vagrant up` within the `vagrant/` directory.  The
 test cases can be run by executing the following commands:
 
-`vagrant ssh`
-`cd /vagrant/tournament`
-`python tournament_test.py`
+- `vagrant ssh`
+- `cd /vagrant/tournament`
+- `python tournament_test.py`
+
+*Note after you `vagrant ssh` you will not be able to see the 
+`/vagrant/tournament` path but you can cd there! 
