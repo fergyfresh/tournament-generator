@@ -78,30 +78,28 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
-    base_query = """
-    select players.id, name, count(matches.id) as {win_or_loss}
-        from players left join matches
-            on players.id = {field}_id
-        group by players.id
-        order by {win_or_loss} desc
-    """
-    query_wins = base_query.format(field='winner', win_or_loss='wins')
-    query_losses = base_query.format(field='loser', win_or_loss='losses')
-
-    query_join = """
-    select winners.id, winners.name, wins, wins+losses as matches
-        from ({query_wins}) as winners left join ({query_losses}) as losers
-            on winners.id = losers.id;
-    """.format(query_wins=query_wins, query_losses=query_losses)
-
     db = connect()
     c = db.cursor()
-    c.execute(query_join + ';')
+    c.execute("""
+    select winners.id, winners.name, wins, wins+losses as matches
+    from (
+    select players.id, name, count(matches.id) as wins
+        from players left join matches
+            on players.id = winner_id
+        group by players.id
+        order by wins desc
+    ) as winners left join (
+    select players.id, name, count(matches.id) as losses
+        from players left join matches
+            on players.id = loser_id
+        group by players.id
+        order by losses desc
+    ) as losers
+            on winners.id = losers.id;
+    """)
     results = c.fetchall()
-
     db.close()
     return results
-
 
 def reportMatch(winner, loser):
     """Records the outcome of a single match between two players.
@@ -112,11 +110,9 @@ def reportMatch(winner, loser):
     @param loser: match winner's player id
 
     """
-    add_query = """
+    commitQuery("""
     INSERT INTO matches (winner_id, loser_id)
-    VALUES ({winner_id}, {loser_id})
-    """.format(winner_id=winner, loser_id=loser)
-    commitQuery(add_query)
+    VALUES (winner, loser)""")
 
 def swissPairings():
     """Returns a list of player pairings for the next round of a match.
