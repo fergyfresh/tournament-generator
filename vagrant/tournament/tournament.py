@@ -110,9 +110,17 @@ def reportMatch(winner, loser):
     @param loser: match winner's player id
 
     """
-    commitQuery("""
+    db = connect()
+    c = db.cursor()
+
+    query = """
+    SELECT COUNT(id) from players;
+    """
+    c.execute("""
     INSERT INTO matches (winner_id, loser_id)
-    VALUES (winner, loser)""")
+    VALUES (%s, %s)""", (winner, loser))
+    db.commit()
+    db.close()
 
 def swissPairings():
     """Returns a list of player pairings for the next round of a match.
